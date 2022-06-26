@@ -36,21 +36,19 @@ def create_app(test_config=None):
         )
         return response
 
-    """
-    @TODO:
-    Create an endpoint to handle GET requests
-    for all available categories.
-    """
-
     # Retrieve all categories
     @app.route('/categories', methods=['GET'])
     def get_categories():
         try:
             categories = Category.query.all()
             categories = [category.format() for category in categories]
+            categories_dict = {}
+            for category in categories:
+                categories_dict[category['id']] = category['type']
+
             return jsonify({
                 'success': True,
-                'categories': categories
+                'categories': categories_dict
             })
         except:
             abort(422)
@@ -59,15 +57,23 @@ def create_app(test_config=None):
     @app.route('/questions', methods=['GET'])
     def get_questions():
         try:
-            questions = Question.query.all()
+            questions = Question.query.order_by(Question.id).all()
             current_questions = paginate_questions(request, questions)
+
+            # Create a dictionary for the response containing the questions and categories
             categories = Category.query.all()
+
+            categories_dict = {}
+
+            for category in categories:
+                categories_dict[category.id] = category.type
+            
             categories = [category.format() for category in categories]
             return jsonify({
                 'success': True,
                 'questions': current_questions,
                 'total_questions': len(questions),
-                'categories': categories,
+                'categories': categories_dict,
                 'current_category': None
             })
         except:
@@ -140,18 +146,6 @@ def create_app(test_config=None):
             })
         except:
             abort(422)
-
-    """
-    @TODO:
-    Create a POST endpoint to get questions to play the quiz.
-    This endpoint should take category and previous question parameters
-    and return a random questions within the given category,
-    if provided, and that is not one of the previous questions.
-
-    TEST: In the "Play" tab, after a user selects "All" or a category,
-    one question at a time is displayed, the user is allowed to answer
-    and shown whether they were correct or not.
-    """
 
     # Retrieve a random question
     @app.route('/quizzes', methods=['POST'])
