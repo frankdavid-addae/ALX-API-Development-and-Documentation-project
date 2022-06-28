@@ -439,8 +439,6 @@ The API will return three error types when requests fail:
 
 ## Testing
 
-Write at least one test for the success and at least one error behavior of each endpoint using the unittest library.
-
 To deploy the tests, run
 
 ```bash
