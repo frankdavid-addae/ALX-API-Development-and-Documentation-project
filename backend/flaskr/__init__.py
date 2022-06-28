@@ -111,6 +111,9 @@ def create_app(test_config=None):
 
             if search:
                 questions = Question.query.filter(Question.question.ilike(f'%{search}%')).all()
+
+                if len(questions) == 0:
+                    abort(404)
             
                 current_questions = paginate_questions(request, questions)
                 return jsonify({
@@ -180,6 +183,14 @@ def create_app(test_config=None):
             "error": 404,
             "message": "Resource not found"
         }), 404
+
+    @app.errorhandler(405)
+    def method_not_allowed(error):
+        return jsonify({
+            "success": False,
+            "error": 405,
+            "message": "Method not allowed"
+        }), 405
 
     @app.errorhandler(422)
     def unprocessable(error):

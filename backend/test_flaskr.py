@@ -99,7 +99,50 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['total_questions'])
         self.assertTrue(data['categories'])
 
+    # Test POST Quiz endpoint
+    def test_post_quiz(self):
+        res = self.client().post('/quizzes', json={'quiz_category': {'id': 1, 'type': 'Science'}, 'previous_questions': []})
+        data = json.loads(res.data)
 
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['question'])
+
+    # Test POST Quiz endpoint with invalid category
+    def test_post_quiz_invalid_category(self):
+        res = self.client().post('/quizzes', json={'quiz_category': {'id': 100, 'type': 'Science'}, 'previous_questions': []})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Unprocessable')
+
+    # Test POST Quiz endpoint with invalid previous questions
+    def test_post_quiz_invalid_previous_questions(self):
+        res = self.client().post('/quizzes', json={'quiz_category': {'id': 1, 'type': 'Science'}, 'previous_questions': [{'id': 100}]})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Unprocessable')
+
+    # Test Delete Question endpoint with invalid question id
+    def test_delete_question_invalid_id(self):
+        res = self.client().delete('/questions/100')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Unprocessable')
+
+    # Test Retrieve Questions by Category endpoint with invalid category
+    def test_get_questions_by_category_invalid_category(self):
+        res = self.client().get('/categories/100/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Unprocessable')
 
 
 
